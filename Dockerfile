@@ -84,13 +84,6 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 	rm -rf /var/lib/apt/lists/*
 
 # ---- Workspace dirs ----
-RUN mkdir -p /software /home/ubuntu/ros2_ws/src
+RUN mkdir -p /home/ubuntu/software/ros2_ws/src
 
 WORKDIR /home/ubuntu
-
-# ---- Python base venv ----
-RUN python3 -m venv /software/venv
-ENV PATH="/software/venv/bin:$PATH"
-
-RUN pip install --upgrade pip
-

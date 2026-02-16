@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-SOFTWARE=/software
+SOFTWARE=/home/ubuntu/software
 
 # ---- ROS ----
-if [ ! -d "/home/ubuntu/ros2_ws/src/examples" ]; then
-  cd ~/ros2_ws
+if [ ! -d "$SOFTWARE/ros2_ws/src/examples" ]; then
+  cd $SOFTWARE/ros2_ws
   git clone https://github.com/ros2/examples src/examples -b humble
   colcon build --symlink-install || true
   echo 'source install/setup.bash' >> ~/.bashrc  # every environment should have ROS for convenience
@@ -40,7 +40,7 @@ echo "export LD_LIBRARY_PATH=${SOFTWARE}/HELICS/install/lib:\$LD_LIBRARY_PATH" >
 # ---- GridLAB-D ----
 cd $SOFTWARE
 
-if [ ! -d "gridlab-d" ]; then
+if [ ! -d "$SOFTWARE/gridlab-d" ]; then
   git clone --branch release/5.1 --single-branch https://github.com/gridlab-d/gridlab-d.git
 fi
 
@@ -66,9 +66,20 @@ echo "export GLPATH=${SOFTWARE}/GridLAB-D/share" >> ~/.bashrc
 # finally source it
 source ~/.bashrc
 
-# OPTIONAL: download relevant example
-cd ~
-git clone https://github.com/cps-vip/cosim-fault-injection.git
+# download this repo and custom fault injection modules
+cd $SOFTWARE
+if [ ! -d "$SOFTWARE/cosim-fault-injection" ]; then
+  git clone https://github.com/elliotkantor/cosim-fault-injection.git
+fi
+
+# copy minimal publisher to ros2_ws
+cp -r $SOFTWARE/cosim-fault-injection/minimal_publisher $SOFTWARE/ros2_ws/src/examples/rclcpp/topics/
+# copy ros2 config to the ros2_ws 
+cp $SOFTWARE/cosim-fault-injection/ROS2_config_cc.json $SOFTWARE/ros2_ws
+
+# install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 echo "INSTALL COMPLETE"
+echo "Consider using a new terminal for full functionality"
 
