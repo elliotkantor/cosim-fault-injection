@@ -4,3 +4,4 @@ HELICS/build
 **/CMakeCache.txt
 .venv
 *.log
+software

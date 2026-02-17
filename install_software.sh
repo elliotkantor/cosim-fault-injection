@@ -2,13 +2,14 @@
 set -e
 
 SOFTWARE=/home/ubuntu/software
+mkdir -p $SOFTWARE/ros2_ws
 
 # ---- ROS ----
 if [ ! -d "$SOFTWARE/ros2_ws/src/examples" ]; then
   cd $SOFTWARE/ros2_ws
   git clone https://github.com/ros2/examples src/examples -b humble
   colcon build --symlink-install || true
-  echo 'source install/setup.bash' >> ~/.bashrc  # every environment should have ROS for convenience
+  echo "source $SOFTWARE/ros2_ws/install/setup.bash" >> ~/.bashrc  # every environment should have ROS for convenience
 fi
 
 
