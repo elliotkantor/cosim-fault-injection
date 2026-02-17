@@ -2,7 +2,7 @@
     "coreInit": "--federates=1",
     "coreName": "Relay Federate",
     "coreType": "zmq",
-    "name": "Relay",
+    "name": "relay",
     "offset": 0,
     "period": 60,
     "timeDelta": 1,
@@ -12,9 +12,9 @@
     "publications": [
         {
             "name": "Trip",
-            "key": "relay/trip",
+            "key": "trip",
             "type": "string",
-            "units": "status"
+	    "required": true
         }
     ],
     "subscriptions": [

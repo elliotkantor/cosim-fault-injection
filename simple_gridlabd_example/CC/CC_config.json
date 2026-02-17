@@ -2,7 +2,7 @@
     "coreInit": "--federates=1",
     "coreName": "ControlCenter Federate",
     "coreType": "zmq",
-    "name": "CC",
+    "name": "cc",
     "offset": 0,
     "period": 60,
     "timeDelta": 1,
@@ -12,8 +12,9 @@
     "publications": [
         {
             "name": "Coordinates",
-            "key": "cc/fault_coordinates",
-            "type": "string"
+            "key": "fault_coordinates",
+            "type": "string",
+	    "required": true
         }
     ],
     "subscriptions": [
