@@ -29,15 +29,9 @@ source /opt/ros/humble/setup.bash
 HELICS_BROKER=`which helics_broker`
 ($HELICS_BROKER -t="zmq" --federates=5 --name=mainbroker > $BROKER_LOG)&
 
-# Start Gazebo (headless for simulation)
-echo "Starting Gazebo..."
-ros2 launch ros_gz_sim gz_sim.launch.py headless:=true > $GAZEBO_LOG 2>&1 &
-GAZEBO_PID=$!
-sleep 3
-
-# Start NAV2 bringup (navigation stack with action server)
-echo "Starting NAV2 navigation stack..."
-ros2 launch nav2_bringup bringup_launch.py slam:=false use_sim_time:=true > $NAV2_LOG 2>&1 &
+# Start Gazebo, NAV2, and robot via comprehensive launch file
+echo "Starting Gazebo, NAV2 stack, and robot..."
+ros2 launch vipnav launch_sim.launch.py headless:=true > $GAZEBO_LOG 2>&1 &
 NAV2_PID=$!
 
 # Wait for NAV2 action server to be ready (can take 15-30 seconds)
@@ -75,8 +69,7 @@ echo "Starting ROS2 HELICS federate..."
 ros2 run examples_rclcpp_minimal_publisher publisher_member_function > $ROS2_LOG 2>&1 &
 
 echo "All simulators and ROS2 services started!"
-echo "Gazebo PID: $GAZEBO_PID"
-echo "NAV2 PID: $NAV2_PID"
+echo "NAV2/Gazebo/Robot PID: $NAV2_PID"
 echo "Logs available in results/ directory"
 echo ""
 echo "To stop all services, run: pkill -f 'helics_broker|gz|ros2|gridlabd|python'; sleep 2"
