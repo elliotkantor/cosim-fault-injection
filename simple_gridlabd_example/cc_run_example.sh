@@ -25,22 +25,33 @@ uv sync
 
 # Source ROS2 setup
 source /opt/ros/humble/setup.bash
-# If using NAV2 workspace
-if [ -f ~/cosim-fault-injection/NAV2/src/install/setup.bash ]; then
-  source ~/cosim-fault-injection/NAV2/src/install/setup.bash
-fi
 
 HELICS_BROKER=`which helics_broker`
 ($HELICS_BROKER -t="zmq" --federates=5 --name=mainbroker > $BROKER_LOG)&
 
-# Start Gazebo and NAV2 stack
-echo "Starting Gazebo and NAV2 stack..."
-ros2 launch vipnav launch_sim.launch.py > $GAZEBO_LOG 2>&1 &
-NAV2_PID=$!
-sleep 5
+# Start Gazebo (headless for simulation)
+echo "Starting Gazebo..."
+ros2 launch ros_gz_sim gz_sim.launch.py headless:=true > $GAZEBO_LOG 2>&1 &
+GAZEBO_PID=$!
+sleep 3
 
-# Give NAV2 time to start up
-sleep 5
+# Start NAV2 bringup (navigation stack with action server)
+echo "Starting NAV2 navigation stack..."
+ros2 launch nav2_bringup bringup_launch.py slam:=false use_sim_time:=true > $NAV2_LOG 2>&1 &
+NAV2_PID=$!
+
+# Wait for NAV2 action server to be ready (can take 15-30 seconds)
+echo "Waiting for NAV2 action server to become available..."
+for i in {1..60}; do
+  if ros2 service list 2>/dev/null | grep -q "navigate_to_pose"; then
+    echo "NAV2 action server is ready!"
+    break
+  fi
+  if [ $i -eq 60 ]; then
+    echo "WARNING: NAV2 action server did not become available after 60 seconds"
+  fi
+  sleep 1
+done
 
 # Start grid and power simulators
 cd Transmission
@@ -64,8 +75,8 @@ echo "Starting ROS2 HELICS federate..."
 ros2 run examples_rclcpp_minimal_publisher publisher_member_function > $ROS2_LOG 2>&1 &
 
 echo "All simulators and ROS2 services started!"
-echo "Broker PID: $HELICS_BROKER"
-echo "NAV2/Gazebo PID: $NAV2_PID"
+echo "Gazebo PID: $GAZEBO_PID"
+echo "NAV2 PID: $NAV2_PID"
 echo "Logs available in results/ directory"
 echo ""
-echo "To stop all services, run: pkill -f 'helics_broker|gazebo|ros2|gridlabd|Python'; sleep 2"
+echo "To stop all services, run: pkill -f 'helics_broker|gz|ros2|gridlabd|python'; sleep 2"

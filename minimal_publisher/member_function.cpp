@@ -134,11 +134,21 @@ private:
 
             RCLCPP_INFO(this->get_logger(), "Parsed coordinates: x=%f, y=%f", x, y);
 
-            // Wait for action server
-            if (!nav_client_->wait_for_action_server(5s)) {
-                RCLCPP_ERROR(this->get_logger(), 
-                    "Navigation action server not available after waiting");
-                return false;
+            // Wait for action server with retries
+            RCLCPP_INFO(this->get_logger(), "Waiting for navigate_to_pose action server...");
+            for (int retry = 0; retry < 10; ++retry) {
+                if (nav_client_->wait_for_action_server(2s)) {
+                    RCLCPP_INFO(this->get_logger(), "Action server found on attempt %d", retry + 1);
+                    break;
+                }
+                if (retry < 9) {
+                    RCLCPP_WARN(this->get_logger(), 
+                        "Action server not available (attempt %d/10), retrying...", retry + 1);
+                } else {
+                    RCLCPP_ERROR(this->get_logger(), 
+                        "Navigation action server not available after 10 attempts (20 seconds total)");
+                    return false;
+                }
             }
 
             // Create goal
