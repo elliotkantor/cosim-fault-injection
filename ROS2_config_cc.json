@@ -13,10 +13,11 @@
     ],
     "subscriptions": [
         {
-        "name": "FaultDetection",
-        "key": "CC/faultDetection",
+        "name": "Coordinates",
+        "key": "cc/fault_coordinates",
         "type": "string",
-        "required": false
+	"required": true	
         }
      ]
+
 }
